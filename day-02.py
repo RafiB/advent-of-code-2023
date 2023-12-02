@@ -119,21 +119,22 @@ def solve(puzzle_input):
                          cubeRound.split(",")]
             games[game].append(cubesSeen)
 
-    limits = {
-            'red': 12,
-            'green': 13,
-            'blue': 14
-    }
-    impossibleGames = set()
+    total = 0
     for game, rounds in games.items():
+        colourMaxes = defaultdict(int)
         for cubeRound in rounds:
             for colour, count in cubeRound:
-                if count > limits[colour]:
-                    impossibleGames.add(game)
+                if count > colourMaxes[colour]:
+                    colourMaxes[colour] = count
+        power = 1
+        for v in colourMaxes.values():
+            power *= v
+        total += power
 
-    return sum(games.keys()) - sum(impossibleGames)
+    return total
+
 
 
 if __name__ == "__main__":
-    assert solve(TEST_INPUT) == 8, solve(TEST_INPUT)
+    assert solve(TEST_INPUT) == 2286, solve(TEST_INPUT)
     print(solve(PUZZLE_INPUT))
