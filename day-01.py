@@ -3,6 +3,14 @@ pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet"""
 
+MORE_PUZZLE_INPUT = """two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen"""
+
 PUZZLE_INPUT = """dssmtmrkonedbbhdhjbf9hq
 2njsevenszzsfltconesixhsflpbpd
 6shgbprkpbksnfourfivemvncvg2eight
@@ -1004,21 +1012,56 @@ sjv8
 ncqpkzh5twooneoneqfxlqbjjhqsrlkhvdnvtbzpcbj
 449three45three"""
 
+NUMBERS = {
+        "one": "1",
+        "two": "2",
+        "three": "3",
+        "four": "4",
+        "five": "5",
+        "six": "6",
+        "seven": "7",
+        "eight": "8",
+        "nine": "9",
+        }
+
+def charStartsNumber(line, i):
+    candidates = list(NUMBERS.keys())
+
+    for number in NUMBERS:
+        if line[i:i+len(number)] == number:
+            return number
+    return None
+
+
 def solve(data):
     lines = data.split("\n")
 
     numbers = []
     for line in lines:
+
         first = None
         last = None
-        for c in line:
-            if c in "1234567890":
+        i = 0
+        while i < len(line):
+            c = line[i]
+            if c in "123456789":
                 if first is None:
                     first = c
                 last = c
+            num = charStartsNumber(line, i)
+            if num is not None:
+                n = NUMBERS[num]
+                if first is None:
+                    first = n
+                last = n
+                i += 1
+            else:
+                i += 1
+
         numbers.append(int(first+last))
     return sum(numbers)
 
 if __name__ == "__main__":
-    assert solve(TEST_INPUT) == 142, solve(TEST_INPUT)
+    # print(charStartsNumber("1eightwothree", 8))
+    assert solve(MORE_PUZZLE_INPUT) == 281, solve(MORE_PUZZLE_INPUT)
     print(solve(PUZZLE_INPUT))
