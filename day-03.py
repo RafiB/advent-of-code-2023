@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 TEST_INPUT = """467..114..
 ...*......
 ..35..633.
@@ -159,39 +162,51 @@ def has_symbol(grid, r, c):
             if (r + dy) < 0 or (r+dy) >= len(grid) or (c + dx) < 0 or (c + dx) >= len(grid[0]):
                 continue
             # print("look at", r+dy, c+dx, "from", r, c, grid[r+dy][c+dx])
-            if not grid[r+dy][c+dx].isdigit() and grid[r+dy][c+dx] != '.':
-                return True
-    return False
+            if grid[r+dy][c+dx] == "*": #not grid[r+dy][c+dx].isdigit() and grid[r+dy][c+dx] != '.':
+                return grid[r+dy][c+dx], r+dy, c+dx
+    return None
 
 
 def solve(puzzle_input):
     rows = puzzle_input.split("\n")
 
-    total = 0
+    numbers_next_to_gear = defaultdict(set)
 
     for r, row in enumerate(rows):
         c = 0
         n = ""
-        symbol = False
+        found_gears = []
         while c < len(row):
             if row[c].isdigit():
                 n += row[c]
-                # print("found", n, "in", r, c)
-                if not symbol and has_symbol(rows, r, c):
-                    symbol = True
+                found_gear = has_symbol(rows, r, c)
+                if found_gear != None:
+                    found_gears.append(found_gear)
+                    # adjacent_gear, gear_r, gear_c = found_gear
+
+                    # symbol = True
             else:
                 # print("not", row[c], "symbol", symbol, "so far", n)
-                if symbol and len(n) > 0:
-                    total += int(n)
-                symbol = False
+                # print("number ended at", n, r, c, "found", found_gears)
+                if len(found_gears) > 0 and len(n) > 0:
+                    for adjacent_gear, gear_r, gear_c in found_gears:
+                        numbers_next_to_gear[(gear_r, gear_c)].add(int(n))
+                found_gears = []
                 n = ""
             c += 1
-        if symbol and len(n) > 0:
-            total += int(n)
+        if len(found_gears) > 0 and len(n) > 0:
+            for adjacent_gear, gear_r, gear_c in found_gears:
+                numbers_next_to_gear[(gear_r, gear_c)].add(int(n))
 
+    total = 0
+
+    for gear, numbers in numbers_next_to_gear.items():
+        if len(numbers) == 2:
+            ns = list(numbers)
+            total += ns[0] * ns[1]
 
     return total
 
 if __name__ == "__main__":
-    assert solve(TEST_INPUT) == 4361, solve(TEST_INPUT)
+    assert solve(TEST_INPUT) == 467835, solve(TEST_INPUT)
     print(solve(PUZZLE_INPUT))
