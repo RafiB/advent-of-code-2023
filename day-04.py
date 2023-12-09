@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 TEST_INPUT = """Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
 Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
@@ -207,6 +209,8 @@ Card 197: 67 21 75 10  9  6 47 88 45 70 | 91 95 58 82 52 50 87 81 78 13 64 53 57
 def solve(puzzle_input):
     total = 0
 
+    num_matching = defaultdict(int)
+
     for line in puzzle_input.split("\n"):
         cardId, nums = line.split(": ")
         winningNums, cardNums = nums.strip().split(" | ")
@@ -215,13 +219,20 @@ def solve(puzzle_input):
 
         fromWinning = winningNums & cardNums
 
-        if len(fromWinning) == 0:
-            continue
-        total += 2**(len(fromWinning)-1)
+        num_matching[int(cardId.split(' ')[-1])] = len(fromWinning)
 
-    return total
+    seen = defaultdict(int)
+    q = list(num_matching.keys())
+    while len(q) > 0:
+        c = q.pop()
+        seen[c] += 1
+        n = num_matching[c]
+        for i in range(n):
+            q.append(c+i+1)
+
+    return sum(seen.values())
 
 
 if __name__ == "__main__":
-    assert solve(TEST_INPUT) == 13, solve(TEST_INPUT)
+    assert solve(TEST_INPUT) == 30, solve(TEST_INPUT)
     print(solve(PUZZLE_INPUT))
